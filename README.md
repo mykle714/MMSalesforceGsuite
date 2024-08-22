@@ -1,3 +1,4 @@
+Not sure how to make comments in a README, but these changes are not meant to be pulled in. I just want a way to leave comments as I go through the process.
 
 # Minds Matter Salesforce Gsuite Deployment Instructions
 	DRAFT: Last edited September 23, 2019
@@ -16,13 +17,16 @@ Salesforce was the obvious choice for what this actively maintained source of tr
 This document outlines the steps required to deploy this synchronization system and is meant to provide a roadmap for other Minds Matter chapters that might want to replicate what Minds Matter Seattle has done. 
 
 # Deployment Steps
+I have no idea how to do this.
 1. Setup a gsuite domain with an admin account, this is an account that will run the infrastructure, but is not tied to a particular individual in the organization, so that the system will keep working in the event that any individual leaves the org.
 beyond the scope of these docs]
 Enable directory sharing in the admin console. 
 https://support.google.com/a/answer/60218?hl=en
 
 
-
+salesforce reports seem to have templates of some sort. I think they're called report types. I assume the columns that are listed below belong to a certain template. Can we put the template name here please? Or point the reader to an example report they can go off of.
+I ended up having to set a "show me" and a "created date" filter. It should be noted here to do that.
+Immediately after listing some columns, more columns are listed. Are those meant to be added? What is the distinction?
 2. Setup a salesforce report that includes all the volunteers and students you want to have accounts.  We set ours up as follows 
 
 Filtered By:1 AND (2 OR 3)   Edit 
@@ -49,26 +53,33 @@ It should have the following columns
 
 We also put these fields to get them into gsuites
 Mailing Street	Mailing City	Mailing State/Province	Mailing Zip/Postal Code	Mailing Country		Mobile
+if these columns really have to be separate from the other columns, having a comma seperating them would be nice.
+Having a phone column and a mobile column makes me wonder whether or not there was a mistake made here. I'll just follow instructions and keep both. The SEA Current Contacts also seems to have both.
 
 4. Clean the salesforce data so it accurately reflects your chapters current volunteers and students including EC status, board status, instructor group status, etc. 
+I'm not really privy to this information. But if I were to clean, I assume you mean export to excel and manually delete. Reader might think you mean to add custom filters to the saleforce report. 
 
-
+what does normalize mean in this context? To standardize according to the format provided afterwards?
+It should be clarified that hyphens in names should be left alone. I am only assuming this right now.
+Not sure what it means to have existing gsuite accounts. I'm just going to assume all existing accounts are fine and working.
 5. If you have existing gsuite accounts, normalize the data between them.
 Add aliases for all existing users with pattern FirstName.LastName@mindsmatterXXX.org in order that the script recognizes that these salesforce entries have an account already.  Note Salesforce Data must match precisely.  Replace all spaces in First and Last names with “.” Later can use “dry run” variable to test what will happen before it does. 
 
-
+not sure this step belongs in this document. reader has no way of making sure that there is a process, right?
 6. Make sure there is a process for updating this information as students and volunteers enter and leave the organization.
 
-
+You say create, but then proceed to imply one already exists that we should use. Folder information/reccomendation should be here to. To help the reader find the existing sheet or to ensure the user that they can create a sheet in an arbitrary location and not break the any scripts. Instruction says to create a spreadsheet but does not indicate what to do with it. This sheet seems important and I'm scared to make edits I'm unsure of. But because the columns are (mostly) the same, I think I'm supposed to completely write over it?? I'm going to make a copy in case I'm wrong...
+Reader could be concerned about column order. One should be specified, or you should tell the reader it doesn't matter.
 7. Create a spreadsheet in your admin accounts gdrive.  We call ours “SEA Current Contacts” you will need the ID of the spreadsheet later (salesforceSpreadSheetID) 
 We decided to give everyone in ec@ and board access to this spreadsheet.  So we modifies shared it with the group ec@ and  board@. This should automatically add and remove access to this information as users are added to and remove from these groups.
 TODO: make this running a function. 
 
+seems to already be installed.
 8. Install the “Data connector for salesforce” add-on from gdrive, use it to connect to your salesforce account, and pull the report into the sheet. 
 https://gsuite.google.com/marketplace/app/data_connector_for_salesforce/857627895310
 Note the name of the sheet’s tab (salesforceSheetName)
 
-
+uhhh ok I'm just now realizing I should not have exported the data and wrote over the original sheet. This data connector pulled it all in. It seems to be connected to a report that already exists?? So I'm not sure why I created a new one. If this set of instructions are for new chapters settings up their own system, then I guess that should be made clear. A seperate guide for creating new accounts each year should be made.
 9. Use the auto-refresh option of Data Connector to setup automated pulling of this data.
 
 
@@ -78,6 +89,7 @@ Note the name of the sheet’s tab (salesforceSheetName)
 
 Note the ID of spreadsheet (newUserSheetID)
 TODO: Make the generation of this spreadsheet automated
+Why do these things have to be automated if theyre for the one time setup for a new chapter?
 
 11. Create a “UserSuspension” spreadsheet owned by admin (note ID “userSuspensionSheetID”)
 
@@ -145,8 +157,11 @@ TODO: make the spreadsheet creation and variable setting automated.
     }
 
     run setup_groups function to automatically create all the groups that have not yet been created.  If groups were created before, you may need to transfer ownership of that group to the admin account.
+where is setup_groups function? In the app scripts for the admin account, I found a setup script in the google groups project. It's unclear if those functions are what I'm supposed to run. That being said, they say that they do steps 10,11, and 13. Does that mean those steps have to be done every year and that I should run them? Judging from the code, I dont think I need to run them... I found a setupGroups function in the code.gs file. This one seems more appropriate... I dont see a dry run option like was referenced before. It doesn't seem like it did anything. students2025 group seems to exist in groups_config, but students2026 does not. However, students2026 does exist in the google groups page. I'm not quite sure what to make of this. Was this script just not used last year for some reason? And the groups were created manually??
 
-15. Do a dry run of user creation.
+Should clarify that this happens in syncGoogleWithSalesforce_v2 in Code.gs
+How do I confirm that this script ran correct and everything is up to date and correct? I can see failures from recent triggers, but I would like another way to validate.
+16. Do a dry run of user creation.
     Edit dry_run = false, to dry_run = true (~line 282) in script.
     Manually trigger script on script.google.com “run>run function>syncGoogleWithSalesforce”
     Wait ~5 minutes for 140 users (till tan box goes away) (more with more users)
@@ -156,12 +171,13 @@ TODO: make the spreadsheet creation and variable setting automated.
     Fix missing group memberships, manually add appropriate volunteers to google classrooms if you are using this gsuite feature. Todo: make this automated and optional.
 
 
-16. Create your intranet sites using sites.google.com
-17. Grant editing permissions to site based upon group membership or individuals you desire.
+17. Create your intranet sites using sites.google.com
+18. Grant editing permissions to site based upon group membership or individuals you desire.
 Make visibility settings based upon organization wide permissions, or group membership.  We created different sites for “internal” (all of org), “ec” and “board”.
 This can be done in parallel with the above steps by volunteers and staff that have gsuite accounts.  Making admin the owner of these sites however will ensure that permissions can be transferred over time.
 
-18. Run a mail merge to notify new users of their accounts.
+No trigger for this, not sure if this was run or not. Unwilling to run it again just in case. Maybe should make function independent of calls. Forgot the term for it. Or log all executions and which users they were run on. Or write function to check if there are new accounts that haven't been notified since last run. Seems like run_merge is after this step, and is run every day. I still have no way of knowing if mail merge was run or not.
+19. Run a mail merge to notify new users of their accounts.
 Write a draft email template in the admin account gmail page introducing new users to their account.  Below is our example 
 
 ```
